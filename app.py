@@ -24,15 +24,19 @@ def call_groq(report_text):
         "Respond with ONLY the JSON object, no extra text."
     )
 
-    payload = {
-        "model": GROQ_MODEL,
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": report_text},
-        ],
-        "temperature": 0.2,
-        "max_tokens": 300,
-    }
+      payload = {
+       "model": GROQ_MODEL,
+       "messages": [
+           {"role": "system", "content": system_prompt},
+           {"role": "user", "content": report_text},
+       ],
+       "temperature": 0.2,
+       "max_tokens": 300,
+       "response_format": {"type": "json_object"},
+   }
+       raw_content = data["choices"][0]["message"]["content"].strip()
+       if not raw_content:
+            raise ValueError("Groq returned an empty response")
 
     resp = requests.post(
         GROQ_ENDPOINT,
