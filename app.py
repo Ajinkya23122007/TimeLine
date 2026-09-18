@@ -44,7 +44,8 @@ def call_groq(report_text):
         json=payload,
         timeout=15,
     )
-    resp.raise_for_status()
+    if resp.status_code >= 400:
+       raise ValueError("Groq error " + str(resp.status_code) + ": " + resp.text)
     data = resp.json()
     raw_content = data["choices"][0]["message"]["content"].strip()
 
