@@ -24,19 +24,16 @@ def call_groq(report_text):
         "Respond with ONLY the JSON object, no extra text."
     )
 
-      payload = {
-       "model": GROQ_MODEL,
-       "messages": [
-           {"role": "system", "content": system_prompt},
-           {"role": "user", "content": report_text},
-       ],
-       "temperature": 0.2,
-       "max_tokens": 300,
-       "response_format": {"type": "json_object"},
-   }
-       raw_content = data["choices"][0]["message"]["content"].strip()
-       if not raw_content:
-            raise ValueError("Groq returned an empty response")
+    payload = {
+        "model": GROQ_MODEL,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": report_text},
+        ],
+        "temperature": 0.2,
+        "max_tokens": 300,
+        "response_format": {"type": "json_object"},
+    }
 
     resp = requests.post(
         GROQ_ENDPOINT,
@@ -51,12 +48,14 @@ def call_groq(report_text):
     data = resp.json()
     raw_content = data["choices"][0]["message"]["content"].strip()
 
+    if not raw_content:
+        raise ValueError("Groq returned an empty response")
+
     if raw_content.startswith("```"):
         raw_content = raw_content.strip("`")
         raw_content = raw_content.replace("json", "", 1).strip()
 
     return json.loads(raw_content)
-
 
 def save_to_supabase(structured, raw_text):
     row = {
